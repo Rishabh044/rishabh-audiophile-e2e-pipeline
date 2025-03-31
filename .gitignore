@@ -1,0 +1,16 @@
+
+datasets/
+.terraform/
+.env
+
+
+
+# Exclude all the tfvars files
+*.tfvars
+
+# ignore terraform state file
+terraform.tfstate
+
+# ignore terraform lock file
+*.terraform.lock.hcl
+

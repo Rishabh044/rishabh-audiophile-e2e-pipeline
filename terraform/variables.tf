@@ -13,3 +13,15 @@ variable "versioning" {
   type    = string
   default = "Enabled"
 }
+
+variable "aws_access_key" {
+  description = "Access key for AWS"
+  type        = string
+  default     = ""
+}
+
+variable "aws_secret_key" {
+  description = "Secret access key for AWS"
+  type        = string
+  default     = ""
+}
