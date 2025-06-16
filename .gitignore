@@ -2,6 +2,7 @@
 datasets/
 .terraform/
 .env
+venv
 
 
 
