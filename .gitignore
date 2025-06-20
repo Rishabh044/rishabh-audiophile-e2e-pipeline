@@ -15,3 +15,6 @@ terraform.tfstate
 # ignore terraform lock file
 *.terraform.lock.hcl
 
+#Ignore pycache
+__pycache__/
+*.py[cod]

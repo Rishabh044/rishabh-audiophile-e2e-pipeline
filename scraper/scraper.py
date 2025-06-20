@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 from io import StringIO
 import logging
 from dotenv import load_dotenv
+from aws_manager import AWSManager
 
 
 logging.basicConfig(level=logging.INFO)
@@ -77,59 +78,11 @@ class TableScrapper:
         )  # Assumming that first row is headers
         return table_df
 
-    @staticmethod
-    def _validate_aws_credentials(
-        aws_access_key: str, aws_secret_key: str, region: str = "us-west-2"
-    ):
-        try:
-            sts_client = boto3.client(
-                "sts",
-                aws_access_key_id=aws_access_key,
-                aws_secret_access_key=aws_secret_key,
-                region_name=region,
-            )
-            response = sts_client.get_caller_identity()
-            log.info("Credentials are valid, writing S3 object...")
-            return True
-        except ClientError as e:
-            log.info(f"Credentials are invalid: {e}")
-            return False
-
-    def save_to_s3(
-        self, df, bucket_name, aws_access_key, aws_secret_key, region, file_name
-    ):
-        if not self._validate_aws_credentials(
-            aws_access_key=aws_access_key,
-            aws_secret_key=aws_secret_key,
-            region=region,
-        ):
-            return
-
-        session = boto3.Session(
-            aws_access_key_id=aws_access_key,
-            aws_secret_access_key=aws_secret_key,
-            region_name=region,
-        )
-
-        s3_client = session.client("s3")
-
-        # Convert DataFrame to CSV string
-        csv_buffer = StringIO()
-        df.to_csv(csv_buffer, index=False)
-
-        # Upload to S3
-        s3_client.put_object(
-            Bucket=bucket_name, Key=f"{file_name}.csv", Body=csv_buffer.getvalue()
-        )
-
-        log.info("File saved to S3✅")
-        log.info(f"File saved as {file_name}.csv")
-
 
 def main():
     CRINACLE_URL = "https://crinacle.com/rankings/iems/"  # URL for iems, ofc :)
     scraper = TableScrapper(CRINACLE_URL)
-
+    manager = AWSManager(AWS_ACCESS_KEY, AWS_SECRET_KEY, REGION)
     page = scraper.get_page(CRINACLE_URL)
 
     soup = BeautifulSoup(page.text, "html.parser")
@@ -139,12 +92,9 @@ def main():
         tables[0]
     )  # we have 2 df but they are same
 
-    scraper.save_to_s3(
+    manager.save_to_s3(
         table_data_df,
         bucket_name=BUCKET_NAME,
-        aws_access_key=AWS_ACCESS_KEY,
-        aws_secret_key=AWS_SECRET_KEY,
-        region=REGION,
         file_name="iems",
     )
 
