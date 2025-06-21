@@ -77,27 +77,3 @@ class TableScrapper:
             data[1:], columns=data[0]
         )  # Assumming that first row is headers
         return table_df
-
-
-def main():
-    CRINACLE_URL = "https://crinacle.com/rankings/iems/"  # URL for iems, ofc :)
-    scraper = TableScrapper(CRINACLE_URL)
-    manager = AWSManager(AWS_ACCESS_KEY, AWS_SECRET_KEY, REGION)
-    page = scraper.get_page(CRINACLE_URL)
-
-    soup = BeautifulSoup(page.text, "html.parser")
-    tables = scraper.find_all_tables(soup)
-
-    table_data_df = scraper.extract_table_data(
-        tables[0]
-    )  # we have 2 df but they are same
-
-    manager.save_to_s3(
-        table_data_df,
-        bucket_name=BUCKET_NAME,
-        file_name="iems",
-    )
-
-
-if __name__ == "__main__":
-    main()
