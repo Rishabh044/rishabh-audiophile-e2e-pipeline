@@ -18,3 +18,6 @@ terraform.tfstate
 #Ignore pycache
 __pycache__/
 *.py[cod]
+
+# Code scribble
+scribble.py

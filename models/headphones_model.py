@@ -17,17 +17,17 @@ class HeadphonesModel(BaseModel):
     tonesort: Optional[float] = Field(alias="Tonesort")
     techsort: Optional[float] = Field(alias="Techsort")
     pricesort: Optional[float] = Field(alias="Pricesort")
-    
+
     class Config:
         allow_population_by_field_name = True  # allows using snake_case names for .dict()
-    
+
     @field_validator("rank")
     def validate_rank(cls, value):
         expected_values =  {"S", "S-", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"}
         if value is not None and value not in expected_values:
             raise ValueError(f"Recieved Rank:{value}\n Rank should be one of the {sorted(expected_values)}")
         return value
-    
+
     @field_validator("value_rating")
     def validate_rating(cls, value):
         if value is None:
@@ -35,6 +35,14 @@ class HeadphonesModel(BaseModel):
         if re.fullmatch(r"★+", value):
             raise ValueError("Invalid Rating. Should only contain ★")
         return value
-    
-    
-    
+
+    @field_validator("price_msrp")
+    def validate_price(cls, value):
+        if re.findall(r"\b\w*Discontinued\w*\b", value):
+            return 0  # Product is discontinued, imputing value
+
+        clean_value = re.sub(r"\([^)]*\)", "", value)  # removing parenthesis bound text
+
+        computed_value = str(eval(clean_value))  # handles expression like 1000+400
+
+        return computed_value
