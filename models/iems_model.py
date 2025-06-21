@@ -2,19 +2,17 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 import re
 
-class HeadphonesModel(BaseModel):
+class IEMModel(BaseModel):
     rank: Optional[str] = Field(alias="Rank")
-    value_rating: Optional[float] = Field(alias="Value Rating")
+    value_rating: Optional[str] = Field(alias="Value Rating")
     model: Optional[str] = Field(alias="Model")
-    price_msrp: Optional[float] = Field(alias="Price (MSRP)")
+    price_msrp: Optional[int] = Field(alias="Price (MSRP)")
     signature: Optional[str] = Field(alias="Signature")
     comments: Optional[str] = Field(alias="Comments")
     tone_grade: Optional[str] = Field(alias="Tone Grade")
     technical_grade: Optional[str] = Field(alias="Technical Grade")
-    driver_type: Optional[str] = Field(alias="Driver Type")
-    fit_cup_type: Optional[str] = Field(alias="Fit/Cup Type")
-    based_on: Optional[str] = Field(alias="Based on")
-    note_weight: Optional[str] = Field(alias="Note weight")
+    setup: Optional[str] = Field(alias="Setup")
+    status: Optional[str] = Field(alias="Status")
     ranksort: Optional[float] = Field(alias="Ranksort")
     tonesort: Optional[float] = Field(alias="Tonesort")
     techsort: Optional[float] = Field(alias="Techsort")
