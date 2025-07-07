@@ -1,12 +1,15 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 import re
+import numpy as np
+import math
+
 
 class HeadphonesModel(BaseModel):
     rank: Optional[str] = Field(alias="Rank")
-    value_rating: Optional[float] = Field(alias="Value Rating")
+    value_rating: Optional[str] = Field(alias="Value Rating")
     model: Optional[str] = Field(alias="Model")
-    price_msrp: Optional[float] = Field(alias="Price (MSRP)")
+    price_msrp: Optional[str] = Field(alias="Price (MSRP)")
     signature: Optional[str] = Field(alias="Signature")
     comments: Optional[str] = Field(alias="Comments")
     tone_grade: Optional[str] = Field(alias="Tone Grade")
@@ -31,12 +34,12 @@ class HeadphonesModel(BaseModel):
         return value
 
     @field_validator("value_rating")
-    def validate_rating(cls, value):
-        if value is None:
-            return value
-        if re.fullmatch(r"★+", value):
+    def validate_rating(cls, v):
+        if not v or v == "":
+            return None  # or return '★' for default
+        if not all(c == "★" for c in v):
             raise ValueError("Invalid Rating. Should only contain ★")
-        return value
+        return v
 
     @field_validator("price_msrp")
     def validate_price(cls, value):
