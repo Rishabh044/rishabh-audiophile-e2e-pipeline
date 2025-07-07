@@ -2,6 +2,7 @@
 datasets/
 .terraform/
 .env
+venv
 
 
 
@@ -14,3 +15,9 @@ terraform.tfstate
 # ignore terraform lock file
 *.terraform.lock.hcl
 
+#Ignore pycache
+__pycache__/
+*.py[cod]
+
+# Code scribble
+scribble.py

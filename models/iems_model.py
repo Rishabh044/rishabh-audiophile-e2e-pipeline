@@ -1,0 +1,58 @@
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+import re
+
+class IEMModel(BaseModel):
+    rank: Optional[str] = Field(alias="Rank")
+    value_rating: Optional[str] = Field(alias="Value Rating")
+    model: Optional[str] = Field(alias="Model")
+    price_msrp: Optional[str] = Field(alias="Price (MSRP)")
+    signature: Optional[str] = Field(alias="Signature")
+    comments: Optional[str] = Field(alias="Comments")
+    tone_grade: Optional[str] = Field(alias="Tone Grade")
+    technical_grade: Optional[str] = Field(alias="Technical Grade")
+    setup: Optional[str] = Field(alias="Setup")
+    status: Optional[str] = Field(alias="Status")
+    ranksort: Optional[float] = Field(alias="Ranksort")
+    tonesort: Optional[float] = Field(alias="Tonesort")
+    techsort: Optional[float] = Field(alias="Techsort")
+    pricesort: Optional[float] = Field(alias="Pricesort")
+
+    class Config:
+        allow_population_by_field_name = True  # allows using snake_case names for .dict()
+
+    @field_validator("rank")
+    def validate_rank(cls, value):
+        expected_values =  {"S", "S-", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"}
+        if value is not None and value not in expected_values:
+            raise ValueError(f"Recieved Rank:{value}\n Rank should be one of the {sorted(expected_values)}")
+        return value
+
+    @field_validator("value_rating")
+    def validate_rating(cls, v):
+        if not v or v == "":
+            return None  # or return '★' for default
+        if not all(c == "★" for c in v):
+            raise ValueError("Invalid Rating. Should only contain ★")
+        return v
+
+    @field_validator("price_msrp")
+    def validate_price(cls, value):
+        str_val = str(value)
+
+        if re.findall(r"\b\w*Discontinued\w*\b", str_val) or value is None:
+            return 0  # Product is discontinued, imputing value
+
+        try:
+            # Remove text in parentheses, e.g. "1500(harman)" → "1500"
+            clean_value = re.sub(r"\([^)]*\)", "", str_val).strip()
+
+            # Check that only valid characters remain (digits, + - * / . spaces)
+            if not re.fullmatch(r"[\d\s+\-*/.]+", clean_value):
+                raise ValueError(f"Invalid price expression: '{str_val}'")
+
+            computed_value = eval(clean_value)
+            return int(computed_value)
+
+        except Exception as e:
+            raise ValueError(f"Could not parse price from '{value}': {str(e)}")
