@@ -223,3 +223,10 @@ __pycache__/
 
 # Code scribble
 scribble.py
+
+# claude code thingy
+.claude/
+CLAUDE.md
+
+#datasets
+/datasets
