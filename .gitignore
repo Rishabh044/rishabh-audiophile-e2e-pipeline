@@ -226,7 +226,6 @@ scribble.py
 
 # claude code thingy
 .claude/
-CLAUDE.md
 
 #datasets
 /datasets
